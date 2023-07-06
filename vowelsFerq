@@ -1,0 +1,92 @@
+let loginForm = document.getElementById("formSubmit");
+let result = document.getElementById("result");
+
+let dataObject = {};
+
+loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    // handle submit
+    let name = document.getElementById("name").value;
+    if (name == "") {
+        // throw error
+    } else {
+        var inputitems = name.split(',');
+
+        inputitems.forEach((item, index) => {
+            pushItem(item, countVowel(item));
+        });
+        displayResult();
+    }
+    loginForm.reset();
+});
+
+function pushItem(name, count) {
+    dataObject[count] = dataObject[count] || [];
+    dataObject[count].push(name);
+}
+
+function countVowel(input) {
+    // find the count of vowels
+    const count = input.match(/[aeiou]/gi)?.length || 0;
+    // return number of vowels
+    return count;
+}
+
+function getSortedKeys(data) {
+    const keys = Object.keys(data)
+        .sort((a, b) => b - a);
+    return keys;
+}
+
+function displayResult() {
+
+    result.innerHTML = "";
+
+    let keyList = getSortedKeys(dataObject);
+
+    const table = document.createElement("table");
+    table.setAttribute("class", "styled-table")
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
+    const tr = document.createElement("tr");
+    const thFreq = document.createElement("th");
+    const thName = document.createElement("th");
+
+    thFreq.textContent = "Frequency";
+    thName.textContent = "Name";
+    tr.appendChild(thFreq);
+    tr.appendChild(thName);
+    thead.appendChild(tr);
+
+    keyList.forEach(key => {
+
+        const names = dataObject[key];
+        const trKey = document.createElement("tr");
+        const tdFreq = document.createElement("td");
+        const tdName = document.createElement("td");
+        tdFreq.textContent = key;
+        trKey.appendChild(tdFreq);
+
+        const ol = document.createElement("ol");
+        names.sort((item1, item2) => {
+            if (item1.length < item2.length) return 1;
+            if (item1.length > item2.length) return -1;
+
+            if (item1.length === item2.length) {
+                return item1.localeCompare(item2);
+            }
+
+        }).map((name) => {
+            const li = document.createElement("li");
+            li.innerHTML = `${name.replace(/(a|e|i|o|u)/ig, "<span class='vowel'>$1</span>")}` + ` (${name.length})`;
+            ol.appendChild(li);
+        }).join("");
+        tdName.appendChild(ol);
+        trKey.appendChild(tdName);
+        tbody.appendChild(trKey);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    result.appendChild(table);
+}
